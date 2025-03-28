@@ -1,4 +1,0 @@
-streamlit
-pydub
-numpy
-scipy
