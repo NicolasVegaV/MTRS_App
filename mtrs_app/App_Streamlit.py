@@ -34,7 +34,9 @@ if st.button("🔊 Probar tono puro"):
     st.audio(tmp.name, format="audio/wav")
 
 # ---------- Cargar audio base ----------
-audio = AudioSegment.from_file("static/ONDAS_DELTA_short.wav", format="wav")
+import os
+audio_path = os.path.join(os.path.dirname(__file__), "static", "ONDAS_DELTA_short.wav")
+audio = AudioSegment.from_file(audio_path, format="wav")
 samples = np.array(audio.get_array_of_samples()).astype(np.float32)
 fs = audio.frame_rate
 
