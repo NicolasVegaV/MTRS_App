@@ -41,25 +41,28 @@ samples = np.array(audio.get_array_of_samples()).astype(np.float32)
 fs = audio.frame_rate
 
 # Procesamiento MTRS
+# Se calcula un ancho de banda del 26% ~1/3 de octava (estandar para terapias auditivas). Se define una banda por encima y por debajo
 def get_mtrs_bands(center_freq):
     band_width = center_freq * 0.26
     lower_band = (center_freq - band_width, center_freq - band_width / 2)
     upper_band = (center_freq + band_width / 2, center_freq + band_width)
     return lower_band, upper_band
 
+# Aumenta volumen de banda de frecuencias
 def bandpass_boost(data, fs, f_low, f_high, gain_db=10):
     sos = butter(2, [f_low, f_high], btype='band', fs=fs, output='sos')
     boosted = sosfilt(sos, data)
     factor = 10**(gain_db/20)
     return boosted * factor
 
+#Elimina la frecuencia que causa tinnitus para no sobreestimular
 def notch_filter(data, fs, freq, q=30):
     bw = freq / q
     f1, f2 = freq - bw / 2, freq + bw / 2
     sos = butter(2, [f1, f2], btype='bandstop', fs=fs, output='sos')
     return sosfilt(sos, data)
 
-# Boton de generación MTRS
+# Boton generacion MTRS
 if st.button("🎶 Generar sonido terapéutico"):
     low_band, high_band = get_mtrs_bands(freq)
 
