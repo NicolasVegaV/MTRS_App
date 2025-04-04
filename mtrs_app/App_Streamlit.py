@@ -13,7 +13,8 @@ st.title("🎧 MTRS Sound Therapy Generator")
 st.write("Selecciona las características del tinnitus para generar un audio terapéutico personalizado.")
 
 # Entrada del usuario
-freq = st.selectbox("Frecuencia del tinnitus (Hz)", list(range(250, 8250, 250)))
+frequencies = list(range(250, 10001, 250))
+freq = st.select_slider("Frecuencia del tinnitus (Hz)", options=frequencies, value=1000)
 db = st.slider("Volumen percibido (dB HL)", 0, 80, 40)
 
 # Generar sonido puro
