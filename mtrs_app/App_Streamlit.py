@@ -7,16 +7,16 @@ import os
 import tempfile
 from scipy.io.wavfile import write as wav_write
 
-# ---------- Configuración inicial ----------
+# Configuracion inicial
 st.set_page_config(page_title="MTRS Generator", layout="centered")
 st.title("🎧 MTRS Sound Therapy Generator")
 st.write("Selecciona las características del tinnitus para generar un audio terapéutico personalizado.")
 
-# ---------- Entrada del usuario ----------
+# Entrada del usuario
 freq = st.selectbox("Frecuencia del tinnitus (Hz)", [250, 500, 1000, 2000, 4000, 6000, 8000])
 db = st.slider("Volumen percibido (dB HL)", 0, 80, 40)
 
-# ---------- Funciones para sonido puro ----------
+# Generar sonido puro
 def dbhl_to_amplitude(db_hl):
     return 10 ** ((db_hl - 80) / 20)
 
@@ -26,21 +26,21 @@ def generate_tone(frequency, duration=1.0, fs=44100, db_hl=40):
     tone = (amplitude * np.sin(2 * np.pi * frequency * t)).astype(np.float32)
     return tone, fs
 
-# ---------- Botón para reproducir tono puro ----------
+# Boton para reproducir tono puro
 if st.button("🔊 Probar tono puro"):
     tone, fs = generate_tone(freq, db_hl=db)
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
     wav_write(tmp.name, fs, (tone * 32767).astype(np.int16))
     st.audio(tmp.name, format="audio/wav")
 
-# ---------- Cargar audio base ----------
+# Cargar audio base
 import os
 audio_path = os.path.join(os.path.dirname(__file__), "static", "ONDAS_DELTA_short.wav")
 audio = AudioSegment.from_file(audio_path, format="wav")
 samples = np.array(audio.get_array_of_samples()).astype(np.float32)
 fs = audio.frame_rate
 
-# ---------- Procesamiento MTRS ----------
+# Procesamiento MTRS
 def get_mtrs_bands(center_freq):
     band_width = center_freq * 0.26
     lower_band = (center_freq - band_width, center_freq - band_width / 2)
@@ -59,7 +59,7 @@ def notch_filter(data, fs, freq, q=30):
     sos = butter(2, [f1, f2], btype='bandstop', fs=fs, output='sos')
     return sosfilt(sos, data)
 
-# ---------- Botón de generación MTRS ----------
+# Boton de generación MTRS
 if st.button("🎶 Generar sonido terapéutico"):
     low_band, high_band = get_mtrs_bands(freq)
 
