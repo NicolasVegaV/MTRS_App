@@ -83,6 +83,13 @@ if st.button("🎶 Generar sonido terapéutico"):
     st.success("✅ Audio MTRS generado correctamente.")
     st.audio(output_filename, format="audio/wav")
 
+    # Mostrar bandas MTRS calculadas
+    st.markdown("### 🎯 Bandas MTRS utilizadas")
+    st.write(f"🔹 Banda inferior reforzada: **{int(low_band[0])} Hz – {int(low_band[1])} Hz**")
+    st.write(f"🔹 Banda superior reforzada: **{int(high_band[0])} Hz – {int(high_band[1])} Hz**")
+    st.write(f"⛔️ Frecuencia del tinnitus atenuada (notch): **{freq} Hz**")
+    
+ # Boton de descarga
     with open(output_filename, "rb") as f:
         st.download_button("⬇️ Descargar audio", f, file_name=output_filename, mime="audio/wav")
 
