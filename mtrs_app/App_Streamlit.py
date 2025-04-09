@@ -45,50 +45,39 @@ db = st.slider("Volumen percibido (dB HL)", 0, 80, 40)
 # --- Identificación asistida del tinnitus ---
 st.markdown("## Identificación asistida del tinnitus")
 
-# --- Identificación asistida del tinnitus ---
-st.markdown("## Identificación asistida del tinnitus")
-
-# Inicializar solo una vez
 if 'min_freq' not in st.session_state:
     st.session_state.min_freq = 250
     st.session_state.max_freq = 8000
+    st.session_state.step = 250
     st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
     st.session_state.selected = False
 
-# Mostrar la frecuencia actual
 st.write(f"Frecuencia actual: **{st.session_state.current_freq} Hz**")
-
-# Reproducir tono actual
 tone, fs = generate_tone(st.session_state.current_freq, duration=1.0, db_hl=db)
 tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
 wav_write(tmp.name, fs, (tone * 32767).astype(np.int16))
 st.audio(tmp.name, format="audio/wav")
 
-# Controles del usuario
 col1, col2, col3 = st.columns(3)
 with col1:
-    if st.button("⬅️ Más grave"):
-        # Solo actualiza si hay margen
-        if st.session_state.current_freq > st.session_state.min_freq:
-            st.session_state.max_freq = st.session_state.current_freq
-            st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
+    if st.button("Más grave"):
+        st.session_state.max_freq = st.session_state.current_freq
+        st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
 with col2:
-    if st.button("➡️ Más agudo"):
-        if st.session_state.current_freq < st.session_state.max_freq:
-            st.session_state.min_freq = st.session_state.current_freq
-            st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
+    if st.button("Más agudo"):
+        st.session_state.min_freq = st.session_state.current_freq
+        st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
 with col3:
-    if st.button("✅ Este es mi tinnitus"):
+    if st.button("Este es mi tinnitus"):
         st.session_state.selected = True
 
-# Mostrar resultado final
+# Mostrar resultado estimado
 if st.session_state.selected:
     f1 = st.session_state.min_freq
     f2 = st.session_state.max_freq
-    st.success(f"✔️ Rango estimado del tinnitus: **{f1} Hz – {f2} Hz**")
+    st.success(f"Rango estimado del tinnitus: **{f1} Hz – {f2} Hz**")
     freq_center = (f1 + f2) / 2
 else:
-    st.info("Usa los botones para ajustar la frecuencia que más se parece a tu tinnitus.")
     st.stop()
 
 # --- Cargar audio base ---
