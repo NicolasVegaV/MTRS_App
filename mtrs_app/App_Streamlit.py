@@ -12,7 +12,7 @@ st.set_page_config(page_title="MTRS Generator", layout="centered")
 st.title("🎧 MTRS Sound Therapy Generator")
 st.write("Selecciona las características del tinnitus para generar un audio terapéutico personalizado.")
 
-# --- Funciones auxiliares ---
+# Funciones auxiliares
 
 def dbhl_to_amplitude(db_hl):
     return 10 ** ((db_hl - 80) / 20)
@@ -39,56 +39,54 @@ def notch_filter_range(data, fs, f_low, f_high):
     sos = butter(2, [f_low, f_high], btype='bandstop', fs=fs, output='sos')
     return sosfilt(sos, data)
 
-# --- Entrada de volumen ---
+# Entrada de volumen
 db = st.slider("Volumen percibido (dB HL)", 0, 80, 40)
 
-# --- Identificación directa con pasos fijos ---
-st.markdown("## Ajuste de frecuencia del tinnitus")
+# Identificación asistida del tinnitus
+st.markdown("## Identificación asistida del tinnitus")
 
-# Inicializar la frecuencia actual solo una vez
-if 'current_freq' not in st.session_state:
-    st.session_state.current_freq = 4000
+if 'min_freq' not in st.session_state:
+    st.session_state.min_freq = 250
+    st.session_state.max_freq = 8000
+    st.session_state.step = 250
+    st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
     st.session_state.selected = False
 
-# Mostrar frecuencia actual
 st.write(f"Frecuencia actual: **{st.session_state.current_freq} Hz**")
-
-# Reproducir tono
 tone, fs = generate_tone(st.session_state.current_freq, duration=1.0, db_hl=db)
 tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
 wav_write(tmp.name, fs, (tone * 32767).astype(np.int16))
 st.audio(tmp.name, format="audio/wav")
 
-# Controles
 col1, col2, col3 = st.columns(3)
 with col1:
-    if st.button("Bajar 250 Hz"):
-        if st.session_state.current_freq > 250:
-            st.session_state.current_freq -= 250
+    if st.button("Más grave"):
+        st.session_state.max_freq = st.session_state.current_freq
+        st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
 with col2:
-    if st.button("Subir 250 Hz"):
-        if st.session_state.current_freq < 8000:
-            st.session_state.current_freq += 250
+    if st.button("Más agudo"):
+        st.session_state.min_freq = st.session_state.current_freq
+        st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
 with col3:
-    if st.button("Confirmar frecuencia"):
+    if st.button("Este es mi tinnitus"):
         st.session_state.selected = True
 
-# Resultado final
+# Mostrar resultado estimado
 if st.session_state.selected:
-    freq_center = st.session_state.current_freq
-    f1 = freq_center - 125
-    f2 = freq_center + 125
-    st.success(f"Frecuencia confirmada: **{freq_center} Hz** (intervalo: {f1}–{f2} Hz)")
+    f1 = st.session_state.min_freq
+    f2 = st.session_state.max_freq
+    st.success(f"Rango estimado del tinnitus: **{f1} Hz – {f2} Hz**")
+    freq_center = (f1 + f2) / 2
 else:
     st.stop()
 
-# --- Cargar audio base ---
+# Cargar audio base
 audio_path = os.path.join(os.path.dirname(__file__), "static", "sonido_lluvia_short.wav")
 audio = AudioSegment.from_file(audio_path, format="wav")
 samples = np.array(audio.get_array_of_samples()).astype(np.float32)
 fs = audio.frame_rate
 
-# --- Generación del sonido terapéutico MTRS ---
+# Generar sonido terapéutico MTRS
 if st.button("🎶 Generar sonido terapéutico"):
 
     # Calcular bandas MTRS
