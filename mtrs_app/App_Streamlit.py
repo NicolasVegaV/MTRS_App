@@ -48,9 +48,13 @@ st.markdown("## Identificación asistida del tinnitus")
 # Inicializar estado
 if 'min_freq' not in st.session_state:
     st.session_state.min_freq = 250
+if 'max_freq' not in st.session_state:
     st.session_state.max_freq = 8000
+if 'current_freq' not in st.session_state:
     st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
+if 'selected' not in st.session_state:
     st.session_state.selected = False
+if 'action' not in st.session_state:
     st.session_state.action = None
 
 # Mostrar frecuencia actual
