@@ -1,4 +1,4 @@
-import streamlit as st
+    import streamlit as st
 import numpy as np
 from pydub import AudioSegment
 from scipy.signal import butter, sosfilt
@@ -65,16 +65,16 @@ st.audio(tmp.name, format="audio/wav")
 col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Más grave"):
-        if st.session_state.last_action != "grave":
+        if st.session_state.current_freq > st.session_state.min_freq:
             st.session_state.max_freq = st.session_state.current_freq
             st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
-            st.session_state.last_action = "grave"
+
 with col2:
     if st.button("Más agudo"):
-        if st.session_state.last_action != "agudo":
+        if st.session_state.current_freq < st.session_state.max_freq:
             st.session_state.min_freq = st.session_state.current_freq
             st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
-            st.session_state.last_action = "agudo"
+
 with col3:
     if st.button("Este es mi tinnitus"):
         st.session_state.selected = True
