@@ -42,60 +42,41 @@ def notch_filter_range(data, fs, f_low, f_high):
 # Entrada de volumen
 db = st.slider("Volumen percibido (dB HL)", 0, 80, 40)
 
-# --- Identificación asistida del tinnitus ---
-st.markdown("## 🎯 Identificación asistida del tinnitus")
+# Identificación asistida del tinnitus
+st.markdown("## Identificación asistida del tinnitus")
 
-# Inicialización robusta del estado
-defaults = {
-    "min_freq": 250,
-    "max_freq": 8000,
-    "current_freq": 4000,
-    "selected": False,
-    "action": None
-}
+if 'min_freq' not in st.session_state:
+    st.session_state.min_freq = 250
+    st.session_state.max_freq = 8000
+    st.session_state.step = 250
+    st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
+    st.session_state.selected = False
 
-for key, value in defaults.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
-
-# Mostrar la frecuencia actual
 st.write(f"Frecuencia actual: **{st.session_state.current_freq} Hz**")
-
-# Reproducir tono
 tone, fs = generate_tone(st.session_state.current_freq, duration=1.0, db_hl=db)
 tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
 wav_write(tmp.name, fs, (tone * 32767).astype(np.int16))
 st.audio(tmp.name, format="audio/wav")
 
-# Controles de usuario
 col1, col2, col3 = st.columns(3)
 with col1:
-    if st.button("⬅️ Más grave"):
-        st.session_state.action = "grave"
+    if st.button("Más grave"):
+        st.session_state.max_freq = st.session_state.current_freq
+        st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
 with col2:
-    if st.button("➡️ Más agudo"):
-        st.session_state.action = "agudo"
+    if st.button("Más agudo"):
+        st.session_state.min_freq = st.session_state.current_freq
+        st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
 with col3:
-    if st.button("✅ Este es mi tinnitus"):
+    if st.button("Este es mi tinnitus"):
         st.session_state.selected = True
 
-# Procesar la acción fuera del bloque de botones
-if st.session_state.action == "grave":
-    st.session_state.max_freq = st.session_state.current_freq
-    st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
-    st.session_state.action = None  # Reset
-
-elif st.session_state.action == "agudo":
-    st.session_state.min_freq = st.session_state.current_freq
-    st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
-    st.session_state.action = None  # Reset
-
-# Mostrar resultado final si se ha confirmado
+# Mostrar resultado estimado
 if st.session_state.selected:
     f1 = st.session_state.min_freq
     f2 = st.session_state.max_freq
+    st.success(f"Rango estimado del tinnitus: **{f1} Hz – {f2} Hz**")
     freq_center = (f1 + f2) / 2
-    st.success(f"✔️ Rango estimado del tinnitus: **{f1} Hz – {f2} Hz**")
 else:
     st.stop()
 
