@@ -51,6 +51,7 @@ if 'min_freq' not in st.session_state:
     st.session_state.step = 250
     st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
     st.session_state.selected = False
+    st.session_state.button_pressed = None
 
 st.write(f"Frecuencia actual: **{st.session_state.current_freq} Hz**")
 tone, fs = generate_tone(st.session_state.current_freq, duration=1.0, db_hl=db)
@@ -58,18 +59,32 @@ tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
 wav_write(tmp.name, fs, (tone * 32767).astype(np.int16))
 st.audio(tmp.name, format="audio/wav")
 
+# Manejo correcto de botones
 col1, col2, col3 = st.columns(3)
+
 with col1:
     if st.button("Más grave"):
-        st.session_state.max_freq = st.session_state.current_freq
-        st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
+        st.session_state.button_pressed = 'lower'
+
 with col2:
     if st.button("Más agudo"):
-        st.session_state.min_freq = st.session_state.current_freq
-        st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
+        st.session_state.button_pressed = 'higher'
+
 with col3:
     if st.button("Este es mi tinnitus"):
         st.session_state.selected = True
+        st.session_state.button_pressed = None  # reset
+
+# Lógica movida fuera de los botones
+if st.session_state.button_pressed == 'lower':
+    st.session_state.max_freq = st.session_state.current_freq
+    st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
+    st.session_state.button_pressed = None
+
+elif st.session_state.button_pressed == 'higher':
+    st.session_state.min_freq = st.session_state.current_freq
+    st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
+    st.session_state.button_pressed = None
 
 # Mostrar resultado estimado
 if st.session_state.selected:
