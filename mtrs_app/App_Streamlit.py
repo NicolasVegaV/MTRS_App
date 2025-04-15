@@ -63,7 +63,12 @@ wav_write(tmp.name, fs, (tone * 32767).astype(np.int16))
 st.audio(tmp.name, format="audio/wav")
 
 # Manejo correcto de botones
+# Botones de control
 col1, col2, col3 = st.columns(3)
+
+# Inicializa botón presionado si no existe
+if 'button_pressed' not in st.session_state:
+    st.session_state.button_pressed = None
 
 with col1:
     if st.button("Más grave"):
@@ -76,18 +81,19 @@ with col2:
 with col3:
     if st.button("Este es mi tinnitus"):
         st.session_state.selected = True
-        st.session_state.button_pressed = None  # reset
+        st.session_state.button_pressed = None
 
-# Lógica movida fuera de los botones
+# Procesar la lógica una vez que se ha presionado un botón
 if st.session_state.button_pressed == 'lower':
     st.session_state.max_freq = st.session_state.current_freq
-    st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
     st.session_state.button_pressed = None
 
 elif st.session_state.button_pressed == 'higher':
     st.session_state.min_freq = st.session_state.current_freq
-    st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
     st.session_state.button_pressed = None
+
+# Ahora actualizamos current_freq en base a los nuevos min y max
+st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
 
 # Mostrar resultado estimado
 if st.session_state.selected:
