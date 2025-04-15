@@ -43,11 +43,11 @@ def notch_filter_range(data, fs, f_low, f_high):
 db = st.slider("Volumen percibido (dB HL)", 0, 80, 40)
 
 # --- Identificación directa con pasos fijos ---
-st.markdown("## 🎧 Ajuste de frecuencia del tinnitus")
+st.markdown("## Ajuste de frecuencia del tinnitus")
 
 # Inicializar la frecuencia actual solo una vez
 if 'current_freq' not in st.session_state:
-    st.session_state.current_freq = 1000
+    st.session_state.current_freq = 4000
     st.session_state.selected = False
 
 # Mostrar frecuencia actual
