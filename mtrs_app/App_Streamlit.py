@@ -51,6 +51,9 @@ if 'min_freq' not in st.session_state:
     st.session_state.step = 250
     st.session_state.current_freq = (st.session_state.min_freq + st.session_state.max_freq) // 2
     st.session_state.selected = False
+
+# Inicialización segura
+if 'button_pressed' not in st.session_state:
     st.session_state.button_pressed = None
 
 st.write(f"Frecuencia actual: **{st.session_state.current_freq} Hz**")
