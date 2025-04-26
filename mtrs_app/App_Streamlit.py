@@ -100,7 +100,7 @@ else:
     st.stop()
 
 # Cargar audio base
-audio_path = os.path.join(os.path.dirname(__file__), "static", "sonido_lluvia_short.wav")
+audio_path = os.path.join(os.path.dirname(__file__), "static", "sonido_mar_short.wav")
 audio = AudioSegment.from_file(audio_path, format="wav")
 samples = np.array(audio.get_array_of_samples()).astype(np.float32)
 fs = audio.frame_rate
